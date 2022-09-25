@@ -5,7 +5,11 @@ date: '2022-09-23'
 output: pdf_document
 ---
 Question1:
-The supervised learning is using the labeled datasets, which the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets. (Need revise)
+The supervised learning is using the labeled data sets, which the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets. (Need revise)
 
 Question2:
+
+
+
+
 
