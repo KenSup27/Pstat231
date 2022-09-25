@@ -8,8 +8,41 @@ Question1:
 The supervised learning is using the labeled data sets, which the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets. (Need revise)
 
 Question2:
+Question3:
+Question4:
+Question5:
+Question6:
 
 
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+Exercise1:
+```{r}
+ggplot(mpg,aes(hwy))+geom_histogram(color = "white")
+```
+Explanation:
 
+Exercise2:
+```{r}
+ggplot(mpg,aes(hwy,cty))+geom_point()
+```
+Explanation:
 
+Exercise3:
+```{r}
+ggplot(mpg,aes(manufacturer))+geom_bar()+coord_flip() #need revise
+```
+Explanation:
 
+Exercise4:
+```{r}
+ggplot(mpg,aes(hwy)) + geom_boxplot(aes(group=cyl))
+```
+Explanation:
+
+Exercise5:
+```{r}
+
+```
