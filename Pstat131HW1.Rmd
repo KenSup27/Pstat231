@@ -15,7 +15,7 @@ Question6:
 
 
 ```{r}
-install.packages("tidyverse")
+#install.packages("tidyverse")
 library(tidyverse)
 ```
 Exercise1:
@@ -44,5 +44,22 @@ Explanation:
 
 Exercise5:
 ```{r}
-
+#install.packages("corrplot")
+library(corrplot)
 ```
+```{r}
+mtcars
+mpg
+```
+
+
+
+
+
+
+
+
+
+
+
+
