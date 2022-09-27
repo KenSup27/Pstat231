@@ -2,7 +2,9 @@
 title: "Pstat131HW1"
 author: "Wentao Yu"
 date: '2022-09-23'
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 Question1:
 The supervised learning is using the labeled data sets, which the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets. (Need revise)
@@ -15,8 +17,8 @@ Question6:
 
 
 ```{r}
-#install.packages("tidyverse")
-library(tidyverse)
+install.packages("tidymodels")
+#library(tidyverse)
 ```
 Exercise1:
 ```{r}
@@ -32,9 +34,10 @@ Explanation:
 
 Exercise3:
 ```{r}
-ggplot(mpg,aes(manufacturer))+geom_bar()+coord_flip() #need revise
+ggplot(mpg,aes(x = reorder(manufacturer,manufacturer, function(x)-length(x))))+geom_bar()+coord_flip()
+# how to change it to from highest to lowest
 ```
-Explanation:
+Explanation: Dodge produces the most cars, and Lincoln produces the least cars. 
 
 Exercise4:
 ```{r}
