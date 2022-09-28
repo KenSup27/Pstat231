@@ -15,14 +15,13 @@ Question4:
 Question5:
 Question6:
 
-
-```{r}
-install.packages("tidymodels")
-#library(tidyverse)
+```{r include=FALSE}
+library(tidyverse)
+library(corrplot)
 ```
 Exercise1:
 ```{r}
-ggplot(mpg,aes(hwy))+geom_histogram(color = "white")
+ggplot(mpg,aes(hwy))+geom_histogram(color = "white", binwidth = 1)
 ```
 Explanation:
 
@@ -34,7 +33,8 @@ Explanation:
 
 Exercise3:
 ```{r}
-ggplot(mpg,aes(x = reorder(manufacturer,manufacturer, function(x)-length(x))))+geom_bar()+coord_flip()
+ggplot(mpg,aes(x = reorder(manufacturer,manufacturer, function(x)-length(x))))+geom_bar()+coord_flip()+
+  labs(x = 'manufacturer', y = 'counts')
 # how to change it to from highest to lowest
 ```
 Explanation: Dodge produces the most cars, and Lincoln produces the least cars. 
@@ -47,16 +47,16 @@ Explanation:
 
 Exercise5:
 ```{r}
-#install.packages("corrplot")
-library(corrplot)
+numeric_data <- select_if(mpg, is.numeric)
+corrplot(cor(numeric_data),method = 'number', type = 'lower')
 ```
-```{r}
-mtcars
-mpg
+Explanation: hwy and cty have positive correlation. cyl and displ have positive correlation. cty has negative correlations with both displ and cyl. hwy has negative correlations with both displ and cyl. 
+
+Exercise 6: 
+```{r vehicle vs hwy boxplot}
+
+
 ```
-
-
-
 
 
 
