@@ -54,7 +54,7 @@ Explanation: hwy and cty have positive correlation. cyl and displ have positive 
 
 Exercise 6: 
 ```{r vehicle vs hwy boxplot}
-
+dsa
 
 ```
 
