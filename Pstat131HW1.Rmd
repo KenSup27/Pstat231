@@ -16,8 +16,12 @@ Question5:
 Question6:
 
 ```{r include=FALSE}
+#install.packages("tidyverse")
+#install.packages("corrplot")
+#install.packages('ggthemes')
 library(tidyverse)
 library(corrplot)
+library(ggthemes)
 ```
 Exercise1:
 ```{r}
@@ -54,8 +58,11 @@ Explanation: hwy and cty have positive correlation. cyl and displ have positive 
 
 Exercise 6: 
 ```{r vehicle vs hwy boxplot}
-dsa
-
+ggplot(mpg, aes(x = hwy, y= class))+
+  geom_boxplot(color = 'black')+
+  geom_point(position = 'jitter', color = 'light gray')+
+  theme_bw()+
+  labs(x='Highway MPG', y='Vehicle Class')
 ```
 
 
