@@ -7,12 +7,41 @@ output:
     df_print: paged
 ---
 Question1:
-The supervised learning is using the labeled data sets, which the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets. (Need revise)
+The supervised learning is using the labeled data sets, and the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets.
 
 Question2:
+According to the lecture slides no.34, 'day_1_131_231', the regression is the method where the response Y is quantitative. The classification is the method where the response Y is qualitative. That means the outputs of regression are numerical values, and the outputs of classification are categorical values. 
+
 Question3:
+
+  - Regression: Mean Square Error(MSE), Root Mean Square Error(RMSE), Mean Absolute Error(MAE)
+  
+  - Classification: ???
+
 Question4:
-Question5:
+According to lecture sides no.39, 'day_1_131_2321',
+
+  - Descriptive models:Choose model to best visually emphasize a trend in data.
+  
+  - Inferential models:
+    1. Aim is to test theories. 
+    2. (Possibly) casual claims.
+    3. State relationship between outcomes & predictors.
+  
+  - Predictive models: 
+    1. Aim is to predict Y with minimum reducible error. 
+    2. Not focused on hypothesis tests. 
+
+Question5: 
+  
+  - 1. Mechanics :
+    2. Empirically-driven: 
+    3. 
+  
+  - 
+  
+  - 
+
 Question6:
 
 ```{r include=FALSE}
@@ -64,7 +93,18 @@ ggplot(mpg, aes(x = hwy, y= class))+
   theme_bw()+
   labs(x='Highway MPG', y='Vehicle Class')
 ```
+Exercise7:
+```{r Class vs hwy, with drv}
+ggplot(mpg, aes(x = class, y = hwy, fill = drv))+
+  geom_boxplot()
+```
 
+Exercise8:
+```{r}
+ggplot(mpg, aes(x = displ, y = hwy))+
+  geom_point(aes(color = drv))+
+  geom_smooth(formula = y ~x, method = 'loess', se = FALSE, aes(linetype=drv))
+```
 
 
 
