@@ -114,8 +114,6 @@ ggplot(mpg, aes(x = displ, y = hwy))+
   geom_smooth(formula = y ~x, method = 'loess', se = FALSE, aes(linetype=drv))
 ```
 
-test
-
 
 
 
