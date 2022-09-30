@@ -5,20 +5,26 @@ date: '2022-09-23'
 output:
   html_document:
     df_print: paged
+  pdf_document: default
 ---
-Question1:
+#### Machine Learning Main Ideas
+
+**Question1:**
+
 The supervised learning is using the labeled data sets, and the unsupervised learning is using algorithm to clustering and analyze the unlabeled data sets. The main difference is the use of labeled data sets.
 
-Question2:
+**Question2:**
+
 According to the lecture slides no.34, 'day_1_131_231', the regression is the method where the response Y is quantitative. The classification is the method where the response Y is qualitative. That means the outputs of regression are numerical values, and the outputs of classification are categorical values. 
 
-Question3:
+**Question3:**
 
   - Regression: Mean Square Error(MSE), Root Mean Square Error(RMSE), Mean Absolute Error(MAE)
   
   - Classification: ???
 
-Question4:
+**Question4:**
+
 According to lecture sides no.39, 'day_1_131_2321',
 
   - Descriptive models:Choose model to best visually emphasize a trend in data.
@@ -32,7 +38,7 @@ According to lecture sides no.39, 'day_1_131_2321',
     1. Aim is to predict Y with minimum reducible error. 
     2. Not focused on hypothesis tests. 
 
-Question5: 
+**Question5: **
   
   - 1. Mechanics :
     2. Empirically-driven: 
@@ -42,8 +48,10 @@ Question5:
   
   - 
 
-Question6:
+**Question6:**
 
+
+#### Exploratory Data Analysis
 ```{r include=FALSE}
 #install.packages("tidyverse")
 #install.packages("corrplot")
@@ -52,19 +60,19 @@ library(tidyverse)
 library(corrplot)
 library(ggthemes)
 ```
-Exercise1:
+**Exercise1:**
 ```{r}
 ggplot(mpg,aes(hwy))+geom_histogram(color = "white", binwidth = 1)
 ```
 Explanation:
 
-Exercise2:
+**Exercise2:**
 ```{r}
 ggplot(mpg,aes(hwy,cty))+geom_point()
 ```
 Explanation:
 
-Exercise3:
+**Exercise3:**
 ```{r}
 ggplot(mpg,aes(x = reorder(manufacturer,manufacturer, function(x)-length(x))))+geom_bar()+coord_flip()+
   labs(x = 'manufacturer', y = 'counts')
@@ -72,20 +80,20 @@ ggplot(mpg,aes(x = reorder(manufacturer,manufacturer, function(x)-length(x))))+g
 ```
 Explanation: Dodge produces the most cars, and Lincoln produces the least cars. 
 
-Exercise4:
+**Exercise4:**
 ```{r}
 ggplot(mpg,aes(hwy)) + geom_boxplot(aes(group=cyl))
 ```
 Explanation:
 
-Exercise5:
+**Exercise5:**
 ```{r}
 numeric_data <- select_if(mpg, is.numeric)
 corrplot(cor(numeric_data),method = 'number', type = 'lower')
 ```
 Explanation: hwy and cty have positive correlation. cyl and displ have positive correlation. cty has negative correlations with both displ and cyl. hwy has negative correlations with both displ and cyl. 
 
-Exercise 6: 
+**Exercise 6: **
 ```{r vehicle vs hwy boxplot}
 ggplot(mpg, aes(x = hwy, y= class))+
   geom_boxplot(color = 'black')+
@@ -93,13 +101,13 @@ ggplot(mpg, aes(x = hwy, y= class))+
   theme_bw()+
   labs(x='Highway MPG', y='Vehicle Class')
 ```
-Exercise7:
+**Exercise7:**
 ```{r Class vs hwy, with drv}
 ggplot(mpg, aes(x = class, y = hwy, fill = drv))+
   geom_boxplot()
 ```
 
-Exercise8:
+**Exercise8:**
 ```{r}
 ggplot(mpg, aes(x = displ, y = hwy))+
   geom_point(aes(color = drv))+
