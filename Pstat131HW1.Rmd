@@ -109,6 +109,7 @@ ggplot(mpg, aes(x = hwy, y= class))+
   theme_bw()+
   labs(x='Highway MPG', y='Vehicle Class')
 ```
+
 **Exercise7:**
 ```{r Class vs hwy, with drv}
 ggplot(mpg, aes(x = class, y = hwy, fill = drv))+
