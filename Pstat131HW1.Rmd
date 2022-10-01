@@ -21,7 +21,7 @@ According to the lecture slides no.34, 'day_1_131_231', the regression is the me
 
   - Regression: Mean Square Error(MSE), Root Mean Square Error(RMSE), Mean Absolute Error(MAE)
   
-  - Classification: ???
+  - Classification: Accuracy, confusion matrix, AUC-ROC
 
 **Question4:**
 
@@ -40,11 +40,12 @@ According to lecture sides no.39, 'day_1_131_2321',
 
 **Question5: **
   
-  - 1. Mechanics :
-    2. Empirically-driven: 
-    3. 
+  - 1. Mechanics: use a theory to predict what will happen in the real world. 
+    2. Empirically-driven: study real-world events to develop a theory. 
+    3. Differences: 
+    4. Similarities: 
   
-  - 
+  - I think mechanics seems to be easier to understand. As the mechanics is given the theory to explore the real world, then we could try to find out the differences between real world events and theory. However, empirically-driven asks us to develop a theory by our own through real-world events, which somehow requires creativity. 
   
   - 
 
