@@ -25,7 +25,7 @@ According to the lecture slides no.34, 'day_1_131_231', the regression is the me
 
 **Question4:**
 
-According to lecture sides no.39, 'day_1_131_2321',
+According to lecture sides no.39, 'day_1_131_231',
 
   - Descriptive models:Choose model to best visually emphasize a trend in data.
   
@@ -40,20 +40,20 @@ According to lecture sides no.39, 'day_1_131_2321',
 
 **Question5: **
   
-  - 1. Mechanics: use a theory to predict what will happen in the real world. 
+  - 1. Mechanistic: use a theory to predict what will happen in the real world. 
     2. Empirically-driven: study real-world events to develop a theory. 
-    3. Differences: 
-    4. Similarities: 
+    3. Differences: mechanistic assumes a parametric form for f, and it won't match true unknown f. However, empirical-driven has no assumptions aboout f, and it requires a large number of observations.
+    4. Similarities: mechanistic can add more parameters to become more flexible, and empirical-driven is flexible by default. Also, both of them are overfitting.
   
-  - I think mechanics seems to be easier to understand. As the mechanics is given the theory to explore the real world, then we could try to find out the differences between real world events and theory. However, empirically-driven asks us to develop a theory by our own through real-world events, which somehow requires creativity. 
+  - I think mechanistic seems to be easier to understand. As the mechanistic is given the theory to explore the real world, then we could try to find out the differences between real world events and theory. However, empirically-driven asks us to develop a theory by our own through real-world events, which somehow requires creativity. 
   
-  - 
+  - bias-variance tradeoff is a property of a model that the variance of the parameter estimated across samples can be reduced by increasing the bias in the estimated parameters. As both of mechanistic and empirical-driven are overfitting which means they have high variance, then bias-variance tradeoff can help them to reduce the variance of parameter by increasing the bias. 
 
 **Question6:** 
 
-  - This is a predictive model. 
+  - This is a predictive model. As voters' files are given, we need to predict the voter's favor of candidates. This is a predictive model.
   
-  - This is an inferential model. 
+  - This is an inferential model. Since it asks to find the change of voters' support if they have personal contact with the candidates, then it is trying to find the relationship between outcomes and predictors. Thus, this is an inferential model. 
 
 #### Exploratory Data Analysis
 ```{r include=FALSE}
@@ -86,9 +86,9 @@ Explanation: Dodge produces the most cars, and Lincoln produces the least cars.
 
 **Exercise4:**
 ```{r}
-ggplot(mpg,aes(hwy, group=cyl)) + geom_boxplot()
+ggplot(mpg,aes(hwy, color= factor(cyl))) + geom_boxplot()
 ```
-Explanation:
+Explanation: I can see that cars with less cylinders(cyl) tend to have higher highway mpg(hwy). 
 
 **Exercise5:**
 ```{r}
@@ -116,11 +116,6 @@ ggplot(mpg, aes(x = class, y = hwy, fill = drv))+
 ggplot(mpg, aes(x = displ, y = hwy))+
   geom_point(aes(color = drv))+
   geom_smooth(formula = y ~x, method = 'loess', se = FALSE, aes(linetype=drv))
-```
-
-
-```{r}
-mpg
 ```
 
 
