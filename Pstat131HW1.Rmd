@@ -3,8 +3,7 @@ title: "Pstat131HW1"
 author: "Wentao Yu"
 date: '2022-09-23'
 output:
-  pdf_document: default
-  html_document:
+  html_document: default
     df_print: paged
 ---
 #### Machine Learning Main Ideas
