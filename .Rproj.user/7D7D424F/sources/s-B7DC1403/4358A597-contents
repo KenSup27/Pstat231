@@ -4,4 +4,14 @@ author: "Wentao Yu"
 date: "2022-10-01"
 output: html_document
 ---
-test
+
+```{r}
+#install.packages("readxl")
+#library(readxl)
+#data <- read_excel("/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/TSLA.xlsx")
+#install.packages("quantmod")
+library(quantmod)
+start_date <- as.Date("2018-07-01")
+end_date <- as.Date("2022-09-30")
+TSLA <- getsa
+```
