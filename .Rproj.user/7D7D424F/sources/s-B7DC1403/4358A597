@@ -3,7 +3,7 @@
     "path": "~/Documents/UCSB File/Stats/Pstat131/Pstat131/Pstat131 Final Project.Rmd",
     "project_path": "Pstat131 Final Project.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "4123217465",
     "contents": "",
     "dirty": true,
     "created": 1664737107578.0,
@@ -12,7 +12,7 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "15,13",
+        "cursorPosition": "18,0",
         "scrollLine": "0"
     },
     "folds": "",
@@ -20,7 +20,7 @@
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1664741078421,
+    "last_content_update": 1664741409821,
     "read_only": false,
     "read_only_alternatives": []
 }

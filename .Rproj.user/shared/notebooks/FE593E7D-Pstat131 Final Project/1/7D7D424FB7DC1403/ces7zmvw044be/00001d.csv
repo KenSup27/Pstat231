@@ -1,6 +1,0 @@
-"0","#install.packages(""readxl"")"
-"0","#library(readxl)"
-"0","#data <- read_excel(""/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/TSLA.xlsx"")"
-"0","#install.packages(""quantmod"")"
-"0","library(quantmod)"
-"0","getQuote(""TSLA"", src = 'yahoo')"
