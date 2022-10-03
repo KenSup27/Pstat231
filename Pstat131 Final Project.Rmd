@@ -5,7 +5,7 @@ date: "2022-10-01"
 output: html_document
 ---
 
-```{r}
+```{r include=FALSE}
 #install.packages("readxl")
 #install.packages('xts')
 library(xts)
@@ -13,8 +13,23 @@ library(xts)
 #data <- read_excel("/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/TSLA.xlsx")
 #install.packages("quantmod")
 library(quantmod)
+```
+```{r dataset}
 start_date <- as.Date("2018-07-01")
 end_date <- as.Date("2022-09-30")
 TSLAData <- getSymbols('TSLA', from = start_date, to = end_date, auto.assign = F)
-
+TSLAData
 ```
+##### An overview of dataset
+The data set contains the open price, close price, highest price, lowerst price, volumn, and adjusted. 
+I get the data from historical Tesla stock data from yahoo. 
+I can separate the data set into 95% of the data be observations, and left 5% be predictor.
+I am working on the numeric data. 
+There is no missing data, and I have no idea how to do with my data. 
+
+##### An overview of my research question
+I am interested in predicting price of Tesla stock. 
+
+##### Proposed project timeline
+
+##### Questions or conserns
