@@ -1,0 +1,6 @@
+---
+title: "Pstat131HW2"
+author: "Wentao Yu"
+date: '2022-10-04'
+output: html_document
+---
