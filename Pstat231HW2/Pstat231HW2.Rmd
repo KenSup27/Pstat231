@@ -1,0 +1,34 @@
+---
+title: "Pstat231HW2"
+author: "Wentao Yu"
+date: '2022-10-04'
+output: html_document
+---
+```{r load package, include=FALSE}
+library(tidymodels)
+library(tidyverse)
+```
+
+##### Question 1
+```{r read dataset Question 1}
+data1 <- read.csv('D:/Github/Pstat131/homework-2/homework-2/data/abalone.csv') # import dataset
+age <- data1[9]+1.5 # extract the rings column since age = rings+1.5
+data2 <- cbind(data1,age) # add a new column into the dataframe
+names(data2)[10] <- 'age' # rename the new column as age
+ggplot(data2, aes(age))+
+  geom_histogram(col='white', binwidth = 1) # plot the age column using histogram to make it access.
+```
+The distribution of age is more likely a normal distribution with positive skew.
+
+##### Question 2
+```{r Question 2 Data Split}
+set.seed(4177) # set seed to make sure the output is stable
+abalone.split <- initial_split(data2, prop = 0.80) # split the data set, then what is the appropriate percentage, may need a new data set since we cannot include rings and age????
+abalone.training <- training(abalone.split) # this is training data set
+abalone.testing <- testing(abalone.split) # this is testing data set
+abalone.training
+```
+
+
+
+
