@@ -11,7 +11,7 @@ library(tidyverse)
 
 ##### Question 1
 ```{r read dataset Question 1}
-data1 <- read.csv('D:/Github/Pstat131/homework-2/homework-2/data/abalone.csv') # import dataset
+data1 <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/homework-2/homework-2/data/abalone.csv') # import dataset
 age <- data1[9]+1.5 # extract the rings column since age = rings+1.5
 data2 <- cbind(data1,age) # add a new column into the dataframe
 names(data2)[10] <- 'age' # rename the new column as age
@@ -23,11 +23,35 @@ The distribution of age is more likely a normal distribution with positive skew.
 ##### Question 2
 ```{r Question 2 Data Split}
 set.seed(4177) # set seed to make sure the output is stable
-abalone.split <- initial_split(data2, prop = 0.80) # split the data set, then what is the appropriate percentage, may need a new data set since we cannot include rings and age????
+data3 = subset(data2, select = -c(rings)) # new dataframe exclude rings
+abalone.split <- initial_split(data3, prop = 0.80) # split the data set, then what is the appropriate percentage, may need a new data set since we cannot include rings and age????
 abalone.training <- training(abalone.split) # this is training data set
 abalone.testing <- testing(abalone.split) # this is testing data set
-abalone.training
+#abalone.training
 ```
+
+###### Question 3
+```{r recipe abalone}
+simple_abalone_recipe <- recipe(age~.,data = abalone.training)
+abalone_recipe <- recipe(age~., data = abalone.training) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~type: shucked_weight) %>%
+  step_interact(terms = ~longest_shell:diameter) %>%
+  step_interact(terms = ~shucked_weight:shell_weight)%>%
+  step_center(all_nominal_predictors()) %>%
+  step_scale(all_nominal_predictors())
+summary(abalone_recipe)
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
