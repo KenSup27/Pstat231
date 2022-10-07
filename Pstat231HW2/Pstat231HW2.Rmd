@@ -11,7 +11,8 @@ library(tidyverse)
 
 ##### Question 1
 ```{r read dataset Question 1}
-data1 <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/homework-2/homework-2/data/abalone.csv') # import dataset
+#data1 <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/homework-2/homework-2/data/abalone.csv') # import dataset
+data1 <- read.csv('D:/Github/Pstat131/homework-2/homework-2/data/abalone.csv')
 age <- data1[9]+1.5 # extract the rings column since age = rings+1.5
 data2 <- cbind(data1,age) # add a new column into the dataframe
 names(data2)[10] <- 'age' # rename the new column as age
@@ -30,23 +31,35 @@ abalone.testing <- testing(abalone.split) # this is testing data set
 #abalone.training
 ```
 
-###### Question 3
+##### Question 3
 ```{r recipe abalone}
 simple_abalone_recipe <- recipe(age~.,data = abalone.training)
 abalone_recipe <- recipe(age~., data = abalone.training) %>%
   step_dummy(all_nominal_predictors()) %>%
-  step_interact(terms = ~type: shucked_weight) %>%
+  step_interact(terms = ~type:shucked_weight) %>%
   step_interact(terms = ~longest_shell:diameter) %>%
   step_interact(terms = ~shucked_weight:shell_weight)%>%
   step_center(all_nominal_predictors()) %>%
   step_scale(all_nominal_predictors())
-summary(abalone_recipe)
 ```
 
+##### Question 4
+```{r lm engine}
+lm_model <- linear_reg() %>%
+  set_engine('lm') # create and store a linear regression object
+```
 
+##### Question 5
+```{r}
+lm_workflow <- workflow() %>% # set up a new workflow
+  add_model(lm_model) %>% # add the linear model from question 4
+  add_recipe(abalone_recipe) # add the recipe from question 3
+```
 
-
-
+##### Question 6
+```{r fit linear model}
+lm_fit <- fit(lm_workflow, abalone.training)
+```
 
 
 
