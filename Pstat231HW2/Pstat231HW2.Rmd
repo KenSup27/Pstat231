@@ -2,7 +2,9 @@
 title: "Pstat231HW2"
 author: "Wentao Yu"
 date: '2022-10-04'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 ```{r load package, include=FALSE}
 library(tidymodels)
@@ -34,12 +36,10 @@ abalone_testing <- testing(abalone_split) # this is testing data set
 ```{r recipe abalone}
 #simple_abalone_recipe <- recipe(age~.,data = abalone_training)
 abalone_recipe <- recipe(age~., data = abalone_training) %>%
-  step_dummy_multi_choice(all_nominal_predictors()) %>%
-  step_interact(terms = ~ shucked_weight:type_yes+
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ shucked_weight:starts_with('type')+
                   diameter:longest_shell+
                   shell_weight:shucked_weight) %>%
-  #step_interact(terms = ~ diameter:longest_shell) %>% 
-  #step_interact(terms = ~ shell_weight:shucked_weight) %>%
   step_center(all_predictors()) %>%
   step_scale(all_predictors())
 summary(abalone_recipe)
