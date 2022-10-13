@@ -300,8 +300,8 @@ pre code {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -309,16 +309,9 @@ pre code {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -396,7 +389,7 @@ abalone_testing &lt;- testing(abalone_split) # this is testing data set</code></
 <pre class="r"><code>#simple_abalone_recipe &lt;- recipe(age~.,data = abalone_training)
 abalone_recipe &lt;- recipe(age~., data = abalone_training) %&gt;%
   step_dummy(all_nominal_predictors()) %&gt;%
-  step_interact(terms = ~ shucked_weight:type_yes+
+  step_interact(terms = ~ shucked_weight:starts_with(&#39;type&#39;)+
                   diameter:longest_shell+
                   shell_weight:shucked_weight) %&gt;%
   step_center(all_predictors()) %&gt;%
@@ -449,23 +442,63 @@ lm_workflow</code></pre>
 </div>
 <div id="question-6" class="section level5">
 <h5>Question 6</h5>
-<pre class="r"><code>#lm_fit &lt;- fit(lm_workflow, abalone_training)</code></pre>
+<pre class="r"><code>#create a new dataframe including the question conditions
+type &lt;- c(&#39;F&#39;)
+longest_shell &lt;- 0.50
+diameter &lt;- 0.10
+height &lt;- 0.30
+whole_weight &lt;- 4
+shucked_weight &lt;- 1
+viscera_weight &lt;- 2
+shell_weight &lt;- 1
+hypo1 &lt;- data.frame(type, longest_shell, diameter, height, whole_weight, shucked_weight, viscera_weight, shell_weight)
+lm_fit &lt;- fit(lm_workflow, abalone_training) # fit the training data
+predict(lm_fit, hypo1) # predict the age using fitted training data from a new dataframe</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   .pred
+##   &lt;dbl&gt;
+## 1  22.4</code></pre>
+</div>
+<div id="question-7" class="section level5">
+<h5>Question 7</h5>
+<pre class="r"><code>abalone_training_res &lt;- predict(lm_fit, new_data = abalone_training %&gt;% select(-age))
+abalone_training_res &lt;- bind_cols(abalone_training_res, abalone_training %&gt;% select(age))
+abalone_matrics &lt;- metric_set(rsq, rmse, mae)
+abalone_matrics(abalone_training_res,truth = age, estimate = .pred)</code></pre>
+<pre><code>## # A tibble: 3 × 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rsq     standard       0.550
+## 2 rmse    standard       2.14 
+## 3 mae     standard       1.55</code></pre>
 </div>
 <div id="required-for-231-students" class="section level5">
 <h5>Required For 231 Students</h5>
 </div>
 <div id="question-8" class="section level5">
 <h5>Question 8</h5>
-<p>Var(<span class="math inline">\(\hat{f}(x_0)\)</span>) and <span class="math inline">\(Bias(\hat{f}(x_0))^2\)</span> are the reproducible
-errors.</p>
+<p>Var(<span class="math inline">\(\hat{f}(x_0)\)</span>) is the
+reproducible errors.</p>
 <p>Var(<span class="math inline">\(\epsilon\)</span>) is the irreducible
 error.</p>
 </div>
 <div id="question-9" class="section level5">
 <h5>Question 9</h5>
+<p>According to day_1_131_231, pg.70, we could take <span class="math inline">\(\hat{f}(x_0)=E[Y|X=x_0]\)</span>, then <span class="math inline">\(E[(\hat{f}(x_0)-E\hat{f}(x_0))^2]=[E[\hat{f}(x_0)]-\hat{f}(x_0)]^2=0\)</span>.<br />
+In this case, <span class="math inline">\(Var(\hat{f}(x_0))=[Bias(\hat{f}(x_0))]^2=0\)</span><br />
+But, we cannot control <span class="math inline">\(Var(\epsilon)\)</span> since this is the
+irreducible error. Thus, the expected test error is always at least as
+large as the irreducible error.</p>
 </div>
 <div id="question-10" class="section level5">
 <h5>Question 10</h5>
+<p><span class="math inline">\(Bias(\hat{f}(x_0))=E[\hat{f}(x_0)]-f(x_0)
+-&gt; [Bias(\hat{f}(x_0))]^2=[E[\hat{f}(x_0)]-f(x_0)]^2\)</span><br />
+According to day_1_131_231, pg.70, <span class="math inline">\(Y=f(X)+\epsilon\)</span> -&gt; f(X) is non-random
+and <span class="math inline">\(\epsilon\)</span> is a zero-mean noise.
+Thus, E[f(X)]=f(X) and E(<span class="math inline">\(\epsilon\)</span>)=0. In this case, <span class="math inline">\(Var(\epsilon)=E(\epsilon^2)\)</span> and <span class="math inline">\(y_0\)</span> in the bias-variance tradeoff
+function is <span class="math inline">\(f(x_0)+\epsilon\)</span>.<br />
+</p>
 </div>
 
 

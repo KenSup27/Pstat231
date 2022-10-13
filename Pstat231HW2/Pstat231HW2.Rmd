@@ -3,10 +3,11 @@ title: "Pstat231HW2"
 author: "Wentao Yu"
 date: '2022-10-04'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 ```{r load package, include=FALSE}
+library(yardstick)
 library(tidymodels)
 library(tidyverse)
 ```
@@ -62,19 +63,43 @@ lm_workflow
 
 ##### Question 6
 ```{r fit linear model}
-lm_fit <- fit(lm_workflow, abalone_training)
+#create a new dataframe including the question conditions
+type <- c('F')
+longest_shell <- 0.50
+diameter <- 0.10
+height <- 0.30
+whole_weight <- 4
+shucked_weight <- 1
+viscera_weight <- 2
+shell_weight <- 1
+hypo1 <- data.frame(type, longest_shell, diameter, height, whole_weight, shucked_weight, viscera_weight, shell_weight)
+lm_fit <- fit(lm_workflow, abalone_training) # fit the training data
+predict(lm_fit, hypo1) # predict the age using fitted training data from a new dataframe
 ```
+##### Question 7
+```{r}
+abalone_training_res <- predict(lm_fit, new_data = abalone_training %>% select(-age))
+abalone_training_res <- bind_cols(abalone_training_res, abalone_training %>% select(age))
+abalone_matrics <- metric_set(rsq, rmse, mae)
+abalone_matrics(abalone_training_res,truth = age, estimate = .pred)
+```
+
 
 ##### Required For 231 Students
 ##### Question 8
-Var($\hat{f}(x_0)$) and $Bias(\hat{f}(x_0))^2$ are the reproducible errors.
+Var($\hat{f}(x_0)$) is the reproducible errors.
 
 Var($\epsilon$) is the irreducible error. 
 
 ##### Question 9
-
+According to day_1_131_231, pg.70, we could take $\hat{f}(x_0)=E[Y|X=x_0]$, then $E[(\hat{f}(x_0)-E\hat{f}(x_0))^2]=[E[\hat{f}(x_0)]-\hat{f}(x_0)]^2=0$.\
+In this case, $Var(\hat{f}(x_0))=[Bias(\hat{f}(x_0))]^2=0$\
+But, we cannot control $Var(\epsilon)$ since this is the irreducible error. Thus, the expected test error is always at least as large as the irreducible error.
 
 ##### Question 10
+$Bias(\hat{f}(x_0))=E[\hat{f}(x_0)]-f(x_0) -> [Bias(\hat{f}(x_0))]^2=[E[\hat{f}(x_0)]-f(x_0)]^2$\
+According to day_1_131_231, pg.70, $Y=f(X)+\epsilon$ -> f(X) is non-random and $\epsilon$ is a zero-mean noise. Thus, E[f(X)]=f(X) and E($\epsilon$)=0. In this case, $Var(\epsilon)=E(\epsilon^2)$ and $y_0$ in the bias-variance tradeoff function is $f(x_0)+\epsilon$. \
+
 
 
 
