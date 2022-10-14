@@ -407,6 +407,8 @@ summary(abalone_recipe)</code></pre>
 ## 7 viscera_weight numeric predictor original
 ## 8 shell_weight   numeric predictor original
 ## 9 age            numeric outcome   original</code></pre>
+<p>We cannot include ring as the predictor of age since they have strong
+linear relationship as age = ring+1.5</p>
 </div>
 <div id="question-4" class="section level5">
 <h5>Question 4</h5>
@@ -498,7 +500,41 @@ According to day_1_131_231, pg.70, <span class="math inline">\(Y=f(X)+\epsilon\)
 and <span class="math inline">\(\epsilon\)</span> is a zero-mean noise.
 Thus, E[f(X)]=f(X) and E(<span class="math inline">\(\epsilon\)</span>)=0. In this case, <span class="math inline">\(Var(\epsilon)=E(\epsilon^2)\)</span> and <span class="math inline">\(y_0\)</span> in the bias-variance tradeoff
 function is <span class="math inline">\(f(x_0)+\epsilon\)</span>.<br />
-</p>
+<span class="math display">\[\begin{equation*}
+\begin{split}
+E[(y_0-\hat{f}(x_0)^2] &amp;= E[(f(x_0)+\epsilon+\hat{f}(x_0))^2]\\
+                       &amp;=
+E[f(x_0)-\hat{f}(x_0)^2]+E[\epsilon^2]+2E[(f(x_0)-\hat{f}(x_0))]E[\epsilon]\\
+                       &amp;= E[f(x_0)-\hat{f}(x_0)^2]+Var(\epsilon)
+\end{split}
+\end{equation*}\]</span> <span class="math display">\[\begin{equation*}
+\begin{split}
+E[f(x_0)-\hat{f}(x_0)^2] &amp;=
+E[((f(x_0)-E[\hat{f}(x_0)])-(\hat{f}(x_0)-E[\hat{f}(x_0)]))^2]\\
+                         &amp;=
+E[(E[\hat{f}(x_0)]-f(x_0))^2]+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &amp;  -2E[(f(x_0)-E[\hat{f}(x_0)])(\hat{f}(x_0)-E[\hat{f}(x_0)])]\\
+                         &amp;=
+(E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &amp;  -2(f(x_0)-E[\hat{f}(x_0)])E[(\hat{f}(x_0)-E[\hat{f}(x_0)])]\\
+                         &amp;=
+(E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &amp;  -2(f(x_0)-E[\hat{f}(x_0)])(E[\hat{f}(x_0)]-E[\hat{f}(x_0)])\\
+                         &amp;=
+(E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &amp;= [bias(\hat{f}(x_0))]^2 +
+Var(\hat{f}(x_0))
+\end{split}
+\end{equation*}\]</span> In this case, <span class="math display">\[\begin{equation*}
+\begin{split}
+E[(y_0-\hat{f}(x_0)^2] &amp;= E[(f(x_0)+\epsilon+\hat{f}(x_0))^2]\\
+                       &amp;=
+E[f(x_0)-\hat{f}(x_0)^2]+E[\epsilon^2]+2E[(f(x_0)-\hat{f}(x_0))]E[\epsilon]\\
+                       &amp;= E[f(x_0)-\hat{f}(x_0)^2]+Var(\epsilon)\\
+                       &amp;= [bias(\hat{f}(x_0))]^2 +
+Var(\hat{f}(x_0))+Var(\epsilon)
+\end{split}
+\end{equation*}\]</span></p>
 </div>
 
 

@@ -45,6 +45,7 @@ abalone_recipe <- recipe(age~., data = abalone_training) %>%
   step_scale(all_predictors())
 summary(abalone_recipe)
 ```
+We cannot include ring as the predictor of age since they have strong linear relationship as age = ring+1.5
 
 ##### Question 4
 ```{r lm engine}
@@ -99,7 +100,35 @@ But, we cannot control $Var(\epsilon)$ since this is the irreducible error. Thus
 ##### Question 10
 $Bias(\hat{f}(x_0))=E[\hat{f}(x_0)]-f(x_0) -> [Bias(\hat{f}(x_0))]^2=[E[\hat{f}(x_0)]-f(x_0)]^2$\
 According to day_1_131_231, pg.70, $Y=f(X)+\epsilon$ -> f(X) is non-random and $\epsilon$ is a zero-mean noise. Thus, E[f(X)]=f(X) and E($\epsilon$)=0. In this case, $Var(\epsilon)=E(\epsilon^2)$ and $y_0$ in the bias-variance tradeoff function is $f(x_0)+\epsilon$. \
-
+\begin{equation*}
+\begin{split}
+E[(y_0-\hat{f}(x_0)^2] &= E[(f(x_0)+\epsilon+\hat{f}(x_0))^2]\\
+                       &= E[f(x_0)-\hat{f}(x_0)^2]+E[\epsilon^2]+2E[(f(x_0)-\hat{f}(x_0))]E[\epsilon]\\
+                       &= E[f(x_0)-\hat{f}(x_0)^2]+Var(\epsilon)
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+E[f(x_0)-\hat{f}(x_0)^2] &= E[((f(x_0)-E[\hat{f}(x_0)])-(\hat{f}(x_0)-E[\hat{f}(x_0)]))^2]\\
+                         &= E[(E[\hat{f}(x_0)]-f(x_0))^2]+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &  -2E[(f(x_0)-E[\hat{f}(x_0)])(\hat{f}(x_0)-E[\hat{f}(x_0)])]\\
+                         &= (E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &  -2(f(x_0)-E[\hat{f}(x_0)])E[(\hat{f}(x_0)-E[\hat{f}(x_0)])]\\
+                         &= (E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &  -2(f(x_0)-E[\hat{f}(x_0)])(E[\hat{f}(x_0)]-E[\hat{f}(x_0)])\\
+                         &= (E[\hat{f}(x_0)]-f(x_0))^2+E[(\hat{f}(x_0)-E[\hat{f}(x_0)])^2]\\
+                         &= [bias(\hat{f}(x_0))]^2 + Var(\hat{f}(x_0))
+\end{split}
+\end{equation*}
+In this case,
+\begin{equation*}
+\begin{split}
+E[(y_0-\hat{f}(x_0)^2] &= E[(f(x_0)+\epsilon+\hat{f}(x_0))^2]\\
+                       &= E[f(x_0)-\hat{f}(x_0)^2]+E[\epsilon^2]+2E[(f(x_0)-\hat{f}(x_0))]E[\epsilon]\\
+                       &= E[f(x_0)-\hat{f}(x_0)^2]+Var(\epsilon)\\
+                       &= [bias(\hat{f}(x_0))]^2 + Var(\hat{f}(x_0))+Var(\epsilon)
+\end{split}
+\end{equation*}
 
 
 
