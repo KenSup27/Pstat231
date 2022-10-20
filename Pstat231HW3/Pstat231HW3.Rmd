@@ -1,0 +1,65 @@
+---
+title: "Pstat231HW3"
+author: "Wentao Yu"
+date: '2022-10-19'
+output: html_document
+---
+```{r package installed, include=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(corrr)
+```
+
+```{r dataset load}
+df <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-3/data/titanic.csv')
+```
+## Question 1
+```{r}
+set.seed(891) # keep the outcome stable
+titanic_split <- initial_split(df, prop = 0.80, strata = survived) # split the data and stratified on survived
+titanic_training <- training(titanic_split) # extract the training data
+titanic_testing <- testing(titanic_split) # extract the testing data
+# titanic_training
+# titanic_testing
+```
+## Question 2
+```{r explore the distributio of survived variable}
+ggplot(titanic_training, aes(survived))+
+  geom_bar()
+```
+From the graph, this looks like a () distribution. 
+
+## Question 3
+```{r}
+cor_titanic <- titanic_training %>% 
+  select(-c(survived, name, sex, ticket, cabin, embarked)) %>%  # eliminate chr type elements
+  correlate()
+cor_titanic
+rplot(cor_titanic) # plot the correlation between continuous elements. 
+```
+Explanation: ticket class is negative correlated with customer fares, which mean larger number of ticket class leads to lower customer fares. This makes sense since 1st class is the best which costs more. 
+
+## Question 4
+```{r dummy recipe}
+titanic_training
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
