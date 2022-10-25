@@ -9,18 +9,24 @@ library(tidymodels)
 library(tidyverse)
 library(ggplot2)
 library(corrr)
+library(discrim)
+library(poissonreg)
+library(klaR)
+tidymodels_prefer()
 ```
 
 ```{r dataset load}
 df <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-3/data/titanic.csv')
+df
 ```
 ## Question 1
 ```{r}
 set.seed(891) # keep the outcome stable
+df[,'survived'] <- as.factor(df[,'survived'])
 titanic_split <- initial_split(df, prop = 0.80, strata = survived) # split the data and stratified on survived
 titanic_training <- training(titanic_split) # extract the training data
 titanic_testing <- testing(titanic_split) # extract the testing data
-# titanic_training
+#titanic_training
 # titanic_testing
 ```
 ## Question 2
@@ -42,8 +48,67 @@ Explanation: ticket class is negative correlated with customer fares, which mean
 
 ## Question 4
 ```{r dummy recipe}
-titanic_training
+titanic_recipe <- recipe(survived ~ pclass+sex+age+sib_sp+parch+fare, data = titanic_training) %>%
+  step_impute_linear(age) %>%
+  step_dummy(all_nominal_predictors()) %>% 
+  step_interact(terms = ~ starts_with('sex'):fare+
+                  age:fare)
+summary(titanic_recipe)
 ```
+## Question 5
+```{r engine & workflow}
+log_reg <- logistic_reg() %>% 
+  set_engine('glm') %>% 
+  set_mode('classification')
+log_wf <- workflow() %>% 
+  add_model(log_reg) %>% 
+  add_recipe(titanic_recipe)
+log_fit <- fit(log_wf, titanic_training)
+```
+## Question 6
+```{r LDA}
+lda_mode <- discrim_linear() %>% 
+  set_engine('MASS') %>% 
+  set_mode('classification')
+lda_wf <- workflow() %>% 
+  add_model(lda_mode) %>% 
+  add_recipe(titanic_recipe)
+lda_fit <- fit(lda_wf, titanic_training)
+```
+## Question 7
+```{r QDA}
+qda_mode <- discrim_quad() %>% 
+  set_engine('MASS') %>% 
+  set_mode('classification')
+qda_wf <- workflow() %>% 
+  add_model(qda_mode) %>% 
+  add_recipe(titanic_recipe)
+qda_fit <- fit(qda_wf, titanic_training)
+```
+## Question 8
+```{r Naive Bayes}
+nb_mode <- naive_Bayes() %>% 
+  set_mode("classification") %>% 
+  set_engine("klaR") %>% 
+  set_args(usekernel = FALSE) 
+
+nb_wf <- workflow() %>% 
+  add_model(nb_mode) %>% 
+  add_recipe(titanic_recipe)
+
+nb_fit <- fit(nb_wf, titanic_training)
+```
+## Question 9 
+```{r log prediction}
+predict(log_fit, new_data = titanic_testing, type = 'prob')
+augment(log_fit, new_data = titanic_testing) %>%
+  conf_mat(truth = survived, estimate = .pred_class) 
+```
+
+
+
+
+
 
 
 
