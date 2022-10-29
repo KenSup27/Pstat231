@@ -492,7 +492,10 @@ results</code></pre>
 ## 2 Linear Discrminant Analysis        0.798
 ## 3 Quadratic Discrminant Analysis     0.777
 ## 4 Naive-Bayes Analysis               0.774</code></pre>
-<p>Logistic Regression has the highest accuracy. ## Question 10</p>
+<p>Logistic Regression has the highest accuracy.</p>
+</div>
+<div id="question-10" class="section level2">
+<h2>Question 10</h2>
 <pre class="r"><code>log_fit_test &lt;- fit(log_wf, titanic_testing)
 log_test_acc &lt;- predict(log_fit_test, titanic_testing) %&gt;% 
   bind_cols(titanic_testing %&gt;% select(survived)) %&gt;% 
@@ -553,7 +556,7 @@ increments will be <span class="math inline">\(e^2\)</span><br />
 <span class="math inline">\(\lim_{x_1\to\infty}p =
 \lim_{x_1\to\infty}\frac{e^{\beta_0+\beta_1x_1}}{1-e^{\beta_0+\beta_1x_1}}=0\)</span><br />
 <span class="math inline">\(\lim_{x_1\to-\infty}p =
-\lim_{x_1\to-\infty}\frac{e^{\beta_0+\beta_1x_1}}{1-e^{\beta_0+\beta_1x_1}}=-1\)</span></li>
+\lim_{x_1\to-\infty}\frac{e^{\beta_0+\beta_1x_1}}{1-e^{\beta_0+\beta_1x_1}}=1\)</span></li>
 </ol>
 </div>
 
