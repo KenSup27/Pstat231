@@ -21,8 +21,7 @@ tidymodels_prefer()
 df <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-3/data/titanic.csv') %>%
   mutate(survived = factor(survived, 
                            levels = c("Yes", "No")),
-         pclass = factor(pclass),
-         coin_flip = c(rep(0, 445), rep(1, 446)))
+         pclass = factor(pclass))
 ```
 ## Question 1
 ```{r}
@@ -49,6 +48,7 @@ cor_titanic <- titanic_training %>%
 cor_titanic
 rplot(cor_titanic) # plot the correlation between continuous elements. 
 ```
+\
 passengers and coin_flip have positive linear relationship with each other. 
  
 
