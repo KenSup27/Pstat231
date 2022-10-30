@@ -49,7 +49,7 @@ cor_titanic
 rplot(cor_titanic) # plot the correlation between continuous elements. 
 ```
 \
-passengers and coin_flip have positive linear relationship with each other. 
+parch and sib_sp have positive relation, sib_sp and age have negative relation, parch and age have negative relation. 
  
 
 ## Question 4
