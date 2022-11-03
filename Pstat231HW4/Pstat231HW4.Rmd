@@ -35,6 +35,8 @@ titanic_fold
 ```
 
 ## Question 3
+The data set is split into 10 folds, and it can be used to evaluate the performance of model when given new data. \
+When using k-fold cross-validation, all parts of data will be used as parts of testing data, which is helpful to evaluate the performance of model. 
 If we want to use the entire data set, we can use leave-one-out cross validation. 
 
 ## Question 4
