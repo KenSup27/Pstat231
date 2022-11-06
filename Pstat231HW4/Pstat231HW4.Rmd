@@ -36,7 +36,7 @@ titanic_fold
 
 ## Question 3
 The data set is split into 10 folds, and it can be used to evaluate the performance of model when given new data. \
-When using k-fold cross-validation, all parts of data will be used as parts of testing data, which is helpful to evaluate the performance of model. 
+When using k-fold cross-validation, all parts of data will be used as parts of testing data, which is helpful to evaluate the performance of model. \
 If we want to use the entire data set, we can use leave-one-out cross validation. 
 
 ## Question 4
@@ -75,6 +75,7 @@ qda_wf <- workflow() %>%
   add_recipe(titanic_recipe)
 #qda_fit <- fit(qda_wf, titanic_training)
 ```
+We have 10 folds and 3 models in total. Each fold will fit those 3 models. 
 
 ## Question 5
 ```{r logistic fit}
@@ -114,6 +115,7 @@ log_acc <- predict(log_new_fit, new_data = titanic_testing, type = 'class') %>%
   accuracy(truth = survived, estimate = .pred_class)
 log_acc
 ```
+I notice that the accuracy of testing model is higher than training set. 
 
 ## Pstat231 Only
 $Y = \beta X+\epsilon$
