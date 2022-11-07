@@ -399,8 +399,9 @@ titanic_fold</code></pre>
 the performance of model when given new data.<br />
 When using k-fold cross-validation, all parts of data will be used as
 parts of testing data, which is helpful to evaluate the performance of
-model. If we want to use the entire data set, we can use leave-one-out
-cross validation.</p>
+model.<br />
+If we want to use the entire data set, we can use leave-one-out cross
+validation.</p>
 </div>
 <div id="question-4" class="section level2">
 <h2>Question 4</h2>
@@ -441,6 +442,8 @@ qda_wf &lt;- workflow() %&gt;%
   add_model(qda_mode) %&gt;% 
   add_recipe(titanic_recipe)
 #qda_fit &lt;- fit(qda_wf, titanic_training)</code></pre>
+<p>We have 10 folds and 3 models in total. Each fold will fit those 3
+models.</p>
 </div>
 <div id="question-5" class="section level2">
 <h2>Question 5</h2>
@@ -500,6 +503,8 @@ log_acc</code></pre>
 ##   .metric  .estimator .estimate
 ##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
 ## 1 accuracy binary         0.810</code></pre>
+<p>I notice that the accuracy of testing model is higher than training
+set.</p>
 </div>
 <div id="pstat231-only" class="section level2">
 <h2>Pstat231 Only</h2>
