@@ -121,6 +121,7 @@ for (i in 1:1000){
 mean(sample_mean)
 sd(sample_mean)
 quantile(sample_mean, probs = 0.995)
+quantile(sample_mean, probs = 0.005)
 ```
 
 
