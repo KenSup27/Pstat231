@@ -1,0 +1,130 @@
+---
+title: "Pstat231HW5"
+author: "Wentao YU"
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: show
+---
+## Question 1
+```{r include=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(corrr)
+library(discrim)
+library(poissonreg)
+library(klaR)
+library(pROC)
+library(janitor)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
+tidymodels_prefer()
+```
+```{r table reading and names cleaning, results='hide'}
+## table reading
+df0 <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-5/data/Pokemon.csv')
+df <- clean_names(df0)
+df0
+df
+```
+The first row becomes low-cases instead of upper-cases, and make '.', '..' into '_'
+
+## Question 2
+```{r plotting and mutating selected dataframe}
+ggplot(df, aes(type_1))+
+  geom_bar() ## plotting the type_1 variable to a bar chart
+df1 <- dplyr::filter(df, type_1 %in% c('Bug','Fire','Grass','Normal','Water','Psychic')) %>% 
+  mutate(type_1 = factor(type_1),
+         legendary = factor(legendary),
+         generation = factor(generation)) ## select the required outcomes and factor type_1, legendary, and generation. 
+```
+There are total 18 types. 'Flying' is a type with very few Pokemon. 
+
+## Question 3
+```{r data splitting including tradining and testing}
+set.seed(721) ## set seed to stabilize the outcome
+pokemon.split <- initial_split(df1, prop = 0.8, strata = type_1)
+pokemon.training <- training(pokemon.split)
+pokemon.testing <- testing(pokemon.split)
+pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold. 
+```
+
+## Question 4
+```{r create recipe and check dummy variables}
+pokemon.recipe <- recipe(type_1 ~ legendary+generation+sp_atk+attack+speed+defense+hp+sp_def, data = pokemon.training) %>% 
+  step_dummy(c(legendary,generation)) %>%  
+  step_center() %>%  ## do we need all_predictors()???
+  step_scale()
+pokemon.recipe %>% 
+  prep() %>% 
+  juice() ## check whether legendary and generation are dummy or nor (outcomes should be 0/1)
+```
+
+## Question 5
+```{r create workflow, regulargrid}
+multilreg <- multinom_reg(penalty = tune(), mixture = tune()) %>% 
+  set_engine('glmnet')
+
+pokemon.wkflow <- workflow() %>% 
+  add_recipe(pokemon.recipe) %>% 
+  add_model(multilreg)
+
+regular_grid <- grid_regular(penalty(range = c(-5,5)), mixture(range = c(0,1)), levels = 10)
+regular_grid
+```
+There are total xxx models. 
+
+## Question 6
+```{r tunegrid}
+tune.model <- tune_grid(
+  pokemon.wkflow,
+  resamples = pokemon.fold,
+  grid = regular_grid
+) 
+autoplot(tune.model)
+```
+It seems that small mixture produces larger accuracy and ROC AUC
+
+## Question 7
+```{r fit the model and find roc curve}
+best.model <- select_best(tune.model, metric = 'roc_auc')
+pokemon.final <- finalize_workflow(pokemon.wkflow, best.model)
+pokemon.final.fit <- fit(pokemon.final, pokemon.training)
+augment(pokemon.final.fit, pokemon.testing, type='prob') %>% 
+  roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
+```
+
+## Question 8
+```{r}
+aug_fit <- augment(pokemon.final.fit, pokemon.testing, type='prob')
+roc_auc(aug_fit, truth = type_1, estimate = .pred_Bug:.pred_Water)
+roc_curve(aug_fit, truth = type_1, estimate = .pred_Bug:.pred_Water) %>%
+  autoplot()
+conf_mat(aug_fit, truth = type_1, estimate=.pred_class) %>% 
+  autoplot(type='heatmap')
+```
+Normal is the best model predicting. Fire is the worst one. 
+## 231 Only
+## Question 9
+```{r}
+library(modelr)
+data <- c(rep(1,337), rep(0,464))
+sample_mean <- c()
+for (i in 1:1000){
+  data1 <- sample(data, replace = T)
+  sample_mean[i] = mean(data1)
+}
+mean(sample_mean)
+sd(sample_mean)
+quantile(sample_mean, probs = 0.995)
+```
+
+
+
+
+
+
