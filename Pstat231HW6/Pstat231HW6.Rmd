@@ -1,0 +1,205 @@
+---
+title: "Pstat231HW6"
+author: "Wentao Yu"
+date: "2022-11-16"
+output: 
+      html_document:
+        toc: true
+        toc_float: true
+        code_folding: show
+---
+```{r include=FALSE}
+library(xgboost)
+library(vip)
+library(ranger)
+library(rpart.plot)
+library(corrplot)
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(corrr)
+library(discrim)
+library(poissonreg)
+library(klaR)
+library(pROC)
+library(janitor)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
+tidymodels_prefer()
+```
+
+## Question 1
+```{r}
+## table reading
+df0 <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-5/data/Pokemon.csv')
+df <- clean_names(df0)
+df1 <- dplyr::filter(df, type_1 %in% c('Bug','Fire','Grass','Normal','Water','Psychic')) %>% 
+  mutate(type_1 = factor(type_1),
+         legendary = factor(legendary),
+         generation = factor(generation)) ## select the required outcomes and factor type_1, legendary, and generation. 
+```
+```{r}
+set.seed(721) ## set seed to stabilize the outcome
+pokemon.split <- initial_split(df1, prop = 0.8, strata = type_1)
+pokemon.training <- training(pokemon.split)
+pokemon.testing <- testing(pokemon.split)
+pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold. 
+```
+```{r}
+pokemon.recipe <- recipe(type_1 ~ legendary+generation+sp_atk+attack+speed+defense+hp+sp_def, data = pokemon.training) %>% 
+  step_dummy(c(legendary,generation)) %>%  
+  step_center() %>%  ## do we need all_predictors()???
+  step_scale()
+pokemon.training
+```
+
+## Question 2
+```{r}
+cor.pokemon <- pokemon.training %>% 
+  select(-c(total, name, type_1, type_2, generation, legendary)) %>%  # eliminate chr variables
+  correlate() # create correlation data frame
+rplot(cor.pokemon) # create correlation plot
+```
+Explanation: 
+
+## Question 3
+```{r}
+tree.pokemon <- decision_tree() %>% 
+  set_engine('rpart') %>% 
+  set_mode('classification')
+pokemon_wkflow <- workflow() %>% 
+  add_model(tree.pokemon %>% set_args(cost_complexity = tune())) %>% 
+  add_recipe(pokemon.recipe)
+param_grid <- grid_regular(cost_complexity(range = c(-3,-1)), levels = 10)
+tune_tree <- tune_grid(
+  pokemon_wkflow,
+  resamples = pokemon.fold,
+  grid = param_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(tune_tree)
+```
+Explanation: 
+
+## Question 4
+```{r}
+collect_metrics(tune_tree) 
+best_model <- select_best(tune_tree, metric = 'roc_auc')
+pokemon_tree_best <- finalize_workflow(pokemon_wkflow, best_model)
+pokemon_tree_best_fit <- fit(pokemon_tree_best, data = pokemon.training)
+pruned_tree <- augment(pokemon_tree_best_fit, pokemon.training, type = 'prob') %>% 
+  roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
+pruned_tree
+```
+Explanation: 
+
+## Question 5
+```{r}
+pokemon_tree_best_fit %>% 
+  extract_fit_engine() %>% 
+  rpart.plot() 
+# warning ???
+```
+
+## Question 5
+```{r}
+pokemon_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>% 
+  set_engine('ranger', importance = "impurity") %>% 
+  set_mode('classification')
+pokemon_forest_wkflow <- workflow() %>% 
+  add_model(pokemon_forest_model) %>% 
+  add_recipe(pokemon.recipe)
+param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(1,8)), min_n(range = c(2L, 40L)), levels = 8) # how to choose the tune range???
+```
+
+## Question 6
+```{r}
+tune_forest <- tune_grid(
+  pokemon_forest_wkflow,
+  resamples = pokemon.fold,
+  grid = param1_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(tune_forest)
+```
+
+## Question 7
+```{r}
+collect_metrics(tune_forest)
+best_model2 <- select_best(tune_forest, metric = 'roc_auc')
+pokemon_forest_best <- finalize_workflow(pokemon_forest_wkflow, best_model2)
+pokemon_forest_best_fit <- fit(pokemon_forest_best, data = pokemon.training)
+random_forest <- augment(pokemon_forest_best_fit, pokemon.training, type = 'prob') %>% 
+  roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
+random_forest
+```
+
+## Question 8
+```{r}
+#vip(pokemon_forest_best_fit) how
+```
+
+## Question 9
+```{r}
+pokemon_boost_model <- boost_tree(trees = tune()) %>% 
+  set_engine("xgboost") %>%
+  set_mode("classification")
+pokemon_boost_wkflow <- workflow() %>% 
+  add_model(pokemon_boost_model) %>% 
+  add_recipe(pokemon.recipe)
+param2_grid <- grid_regular(trees(range(c(10,2000))), levels = 10)
+tune_boost <- tune_grid(
+  pokemon_boost_wkflow,
+  resamples = pokemon.fold,
+  grid = param2_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(tune_boost)
+```
+```{r}
+collect_metrics(tune_boost)
+best_model3 <- select_best(tune_boost, metric = 'roc_auc')
+pokemon_boost_best <- finalize_workflow(pokemon_boost_wkflow, best_model3)
+pokemon_boost_best_fit <- fit(pokemon_boost_best, data = pokemon.training)
+boosted_tree <- augment(pokemon_boost_best_fit, pokemon.training, type = 'prob') %>% 
+  roc_auc(truth=type_1, estimate = .pred_Bug:.pred_Water)
+boosted_tree
+```
+
+## Question 10
+```{r}
+result <- bind_rows(pruned_tree, random_forest, boosted_tree) %>% 
+  tibble() %>% 
+  mutate(model = c('pruned tree model', 'random forest model', 'boost tree model'), .before = .metric)
+select_best(result, metric = '.estimate') # how to use select best???
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

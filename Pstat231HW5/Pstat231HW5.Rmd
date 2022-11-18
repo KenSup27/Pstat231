@@ -31,7 +31,8 @@ df <- clean_names(df0)
 df0
 df
 ```
-The first row becomes low-cases instead of upper-cases, and make '.', '..' into '_'
+The first row becomes low-cases instead of upper-cases, and make '.', '..' into '_'/
+It help to organize the column names. 
 
 ## Question 2
 ```{r plotting and mutating selected dataframe}
@@ -52,13 +53,14 @@ pokemon.training <- training(pokemon.split)
 pokemon.testing <- testing(pokemon.split)
 pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold. 
 ```
+Strata helps to stablize the distribution of strata variable. 
 
 ## Question 4
 ```{r create recipe and check dummy variables}
 pokemon.recipe <- recipe(type_1 ~ legendary+generation+sp_atk+attack+speed+defense+hp+sp_def, data = pokemon.training) %>% 
-  step_dummy(c(legendary,generation)) %>%  
-  step_center() %>%  ## do we need all_predictors()???
-  step_scale()
+  step_center(all_numeric_predictors()) %>%  ## do we need all_predictors()???
+  step_scale(all_numeric_predictors()) %>% 
+  step_dummy(c(legendary,generation))
 pokemon.recipe %>% 
   prep() %>% 
   juice() ## check whether legendary and generation are dummy or nor (outcomes should be 0/1)
@@ -76,7 +78,7 @@ pokemon.wkflow <- workflow() %>%
 regular_grid <- grid_regular(penalty(range = c(-5,5)), mixture(range = c(0,1)), levels = 10)
 regular_grid
 ```
-There are total xxx models. 
+There are total 50 models. 
 
 ## Question 6
 ```{r tunegrid}
@@ -87,7 +89,7 @@ tune.model <- tune_grid(
 ) 
 autoplot(tune.model)
 ```
-It seems that small mixture produces larger accuracy and ROC AUC
+It seems that small values produce larger accuracy and ROC AUC
 
 ## Question 7
 ```{r fit the model and find roc curve}
