@@ -45,7 +45,9 @@ set.seed(721) ## set seed to stabilize the outcome
 pokemon.split <- initial_split(df1, prop = 0.8, strata = type_1)
 pokemon.training <- training(pokemon.split)
 pokemon.testing <- testing(pokemon.split)
-pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold. 
+pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold.
+length(pokemon.training)
+dim(pokemon.training)
 ```
 ```{r}
 pokemon.recipe <- recipe(type_1 ~ legendary+generation+sp_atk+attack+speed+defense+hp+sp_def, data = pokemon.training) %>% 
@@ -111,7 +113,7 @@ pokemon_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune(
 pokemon_forest_wkflow <- workflow() %>% 
   add_model(pokemon_forest_model) %>% 
   add_recipe(pokemon.recipe)
-param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(1,8)), min_n(range = c(2L, 40L)), levels = 8) # how to choose the tune range???
+param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(1,8)), min_n(range = c(2,8)), levels = 8)
 ```
 
 ## Question 6
@@ -138,7 +140,8 @@ random_forest
 
 ## Question 8
 ```{r}
-#vip(pokemon_forest_best_fit) how
+extract_fit_engine(pokemon_forest_best_fit) %>% 
+vip()
 ```
 
 ## Question 9
@@ -173,7 +176,7 @@ boosted_tree
 result <- bind_rows(pruned_tree, random_forest, boosted_tree) %>% 
   tibble() %>% 
   mutate(model = c('pruned tree model', 'random forest model', 'boost tree model'), .before = .metric)
-select_best(result, metric = '.estimate') # how to use select best???
+select_best(result, metric = 'roc_auc') # how to use select best???
 ```
 
 
