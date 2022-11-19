@@ -64,7 +64,7 @@ cor.pokemon <- pokemon.training %>%
   correlate() # create correlation data frame
 rplot(cor.pokemon) # create correlation plot
 ```
-Explanation: 
+Explanation: all the variables are positive correlated with each others. sp_def and defense are higher correlated with each other. sp_atk and attack are higher correlated with each other. 
 
 ## Question 3
 ```{r}
@@ -83,7 +83,7 @@ tune_tree <- tune_grid(
 )
 autoplot(tune_tree)
 ```
-Explanation: 
+Explanation: Higher cost-complexity parameter leads to lower roc_auc(lower performance)
 
 ## Question 4
 ```{r}
@@ -104,8 +104,9 @@ pokemon_tree_best_fit %>%
   rpart.plot() 
 # warning ???
 ```
+mtry should less than the predictors in the data set. 
 
-## Question 5
+## Question 6
 ```{r}
 pokemon_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>% 
   set_engine('ranger', importance = "impurity") %>% 
@@ -116,7 +117,7 @@ pokemon_forest_wkflow <- workflow() %>%
 param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min_n(range = c(2,8)), levels = 8)
 ```
 
-## Question 6
+## Question 7
 ```{r}
 tune_forest <- tune_grid(
   pokemon_forest_wkflow,
@@ -126,8 +127,9 @@ tune_forest <- tune_grid(
 )
 autoplot(tune_forest)
 ```
+higher mtry will lead to higher performance. 
 
-## Question 7
+## Question 8
 ```{r}
 collect_metrics(tune_forest)
 best_model2 <- select_best(tune_forest, metric = 'roc_auc')
@@ -138,13 +140,13 @@ random_forest <- augment(pokemon_forest_best_fit, pokemon.training, type = 'prob
 random_forest
 ```
 
-## Question 8
+## Question 9
 ```{r}
 extract_fit_engine(pokemon_forest_best_fit) %>% 
 vip()
 ```
-
-## Question 9
+sp_atk is the most useful variable. 
+## Question 10
 ```{r}
 pokemon_boost_model <- boost_tree(trees = tune()) %>% 
   set_engine("xgboost") %>%
@@ -171,18 +173,19 @@ boosted_tree <- augment(pokemon_boost_best_fit, pokemon.training, type = 'prob')
 boosted_tree
 ```
 
-## Question 10
+## Question 11
 ```{r}
 bind_rows(pruned_tree, random_forest, boosted_tree) %>% 
   tibble() %>% 
   mutate(model = c('pruned tree model', 'random forest model', 'boost tree model'), .before = .metric)
 # Boost Tree model is the best one. 
 #pokemon_boost_tree_testing <- fit(pokemon_boost_best, data = pokemon.testing) %>% 
-augment(pokemon_boost_best_fit, pokemon.testing, type = 'prob') %>% 
+augment(pokemon_forest_best_fit, pokemon.testing, type = 'prob') %>% 
   roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
 ```
+random forest model performs best and pruned tree model performs worest. 
 ## Pstat231 Only
-## Question 11
+## Question 12
 ```{r}
 abalone <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-6/data/abalone.csv')
 age <- abalone[9]+1.5 # extract the rings column since age = rings+1.5
