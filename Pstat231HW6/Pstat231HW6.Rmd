@@ -113,7 +113,7 @@ pokemon_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune(
 pokemon_forest_wkflow <- workflow() %>% 
   add_model(pokemon_forest_model) %>% 
   add_recipe(pokemon.recipe)
-param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(1,8)), min_n(range = c(2,8)), levels = 8)
+param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min_n(range = c(2,8)), levels = 8)
 ```
 
 ## Question 6
@@ -173,11 +173,64 @@ boosted_tree
 
 ## Question 10
 ```{r}
-result <- bind_rows(pruned_tree, random_forest, boosted_tree) %>% 
+bind_rows(pruned_tree, random_forest, boosted_tree) %>% 
   tibble() %>% 
   mutate(model = c('pruned tree model', 'random forest model', 'boost tree model'), .before = .metric)
-select_best(result, metric = 'roc_auc') # how to use select best???
+# Boost Tree model is the best one. 
+#pokemon_boost_tree_testing <- fit(pokemon_boost_best, data = pokemon.testing) %>% 
+augment(pokemon_boost_best_fit, pokemon.testing, type = 'prob') %>% 
+  roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
 ```
+## Pstat231 Only
+## Question 11
+```{r}
+abalone <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-6/data/abalone.csv')
+age <- abalone[9]+1.5 # extract the rings column since age = rings+1.5
+abalone2 <- cbind(abalone,age) # add a new column into the dataframe
+names(abalone2)[10] <- 'age' # rename the new column as age
+abalone2_split <- initial_split(abalone2, prop = 0.8, strata = age)
+abalone_training <- training(abalone2_split)
+abalone_testing <- testing(abalone2_split)
+abalone_fold <- vfold_cv(abalone_training, v = 5, strata = age)  #cross validation
+```
+```{r}
+abalone_recipe <- recipe(age~., data = abalone_training) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_interact(terms = ~ shucked_weight:starts_with('type')+
+                  diameter:longest_shell+
+                  shell_weight:shucked_weight) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+```
+
+```{r}
+abalone_rand_forest <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>% 
+  set_engine('ranger') %>% 
+  set_mode('regression')
+abalone_wkflow <- workflow() %>% 
+  add_model(abalone_rand_forest) %>% 
+  add_recipe(abalone_recipe)
+forest_tune <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min_n(range = c(2,8)), levels = 10)
+```
+```{r}
+abalone_tune_forest <- tune_grid(
+  abalone_wkflow,
+  resamples = abalone_fold,
+  grid = forest_tune,
+  metrics = metric_set(rmse)
+)
+autoplot(abalone_tune_forest)
+```
+```{r}
+collect_metrics(abalone_tune_forest)
+abalone_best_model <- select_best(abalone_tune_forest, metric = 'rmse')
+abalone_finalwkflow <- finalize_workflow(abalone_wkflow, abalone_best_model)
+abalone_best_fit <- fit(abalone_finalwkflow, data = abalone_training) %>% 
+augment(abalone_testing, type = 'class') %>% 
+  rmse(truth = age, estimate = .pred)
+abalone_best_fit
+```
+
 
 
 
