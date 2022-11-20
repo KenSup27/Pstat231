@@ -109,8 +109,10 @@ roc_curve(aug_fit, truth = type_1, estimate = .pred_Bug:.pred_Water) %>%
 conf_mat(aug_fit, truth = type_1, estimate=.pred_class) %>% 
   autoplot(type='heatmap')
 ```
-Normal is the best model predicting. Fire is the worst one. 
+Normal is the best model predicting. Fire is the worst one.
+
 ## 231 Only
+
 ## Question 9
 ```{r}
 library(modelr)
