@@ -2,29 +2,53 @@
 title: "Final Project"
 author: "Wentao Yu"
 date: "2022-10-01"
-output: html_document
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: show
 ---
+## Introduction
+Predict the potability of water with other 9 variables.
+This project aims to find the relationship between the potability if water is safe for human to consume with other 9 variables containing:\
+1. PH value\
+2. Hardness\
+3. Solids(Total dissolved solids - TDS)\
+4. Chloramines\
+5. Sulfate\
+6. Conductivity\
+7. Organic_carbon\
+8. Trihalomethanes\
+9. Turbidity
 
+## R packages loading
 ```{r include=FALSE}
-library(xts)
-library(quantmod)
-library(ggplot2)
+library(xgboost)
+library(vip)
+library(ranger)
+library(rpart.plot)
+library(corrplot)
 library(tidymodels)
 library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(corrr)
+library(discrim)
+library(poissonreg)
+library(klaR)
+library(pROC)
+library(janitor)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
 tidymodels_prefer()
 ```
 
-```{r dataset}
-start_date <- as.Date("2018-01-01")
-end_date <- as.Date("2022-10-31")
-TSLAData <- getSymbols('TSLA', from = start_date, to = end_date, auto.assign = F)
-TSLAData_Open <- TSLAData$TSLA.Open
-TSLAData_Close <- TSLAData$TSLA.Close
-Volume <- TSLAData$TSLA.Volume
-Svariance <- TSLAData$TSLA.Close-TSLAData$TSLA.Open
-```
+## Data Cleaning
 ```{r}
-inflation <- read.csv('inflationrate.csv', header = F)
+waterdata <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/Final Project/water_potability.csv')
+waterdata <- clean_names(waterdata)
+dim(waterdata)
 ```
 
 
