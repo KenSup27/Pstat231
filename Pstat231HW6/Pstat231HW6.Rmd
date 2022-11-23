@@ -46,15 +46,12 @@ pokemon.split <- initial_split(df1, prop = 0.8, strata = type_1)
 pokemon.training <- training(pokemon.split)
 pokemon.testing <- testing(pokemon.split)
 pokemon.fold <- vfold_cv(pokemon.training, v=5, strata = type_1) ## return the distribution of strata variable to each fold.
-length(pokemon.training)
-dim(pokemon.training)
 ```
 ```{r}
 pokemon.recipe <- recipe(type_1 ~ legendary+generation+sp_atk+attack+speed+defense+hp+sp_def, data = pokemon.training) %>% 
-  step_dummy(c(legendary,generation)) %>%  
-  step_center() %>%  ## do we need all_predictors()???
-  step_scale()
-pokemon.training
+  step_dummy(c(legendary,generation)) %>% 
+  step_scale(all_predictors()) %>% 
+  step_center(all_predictors())
 ```
 
 ## Question 2
@@ -101,8 +98,7 @@ Explanation:
 ```{r}
 pokemon_tree_best_fit %>% 
   extract_fit_engine() %>% 
-  rpart.plot() 
-# warning ???
+  rpart.plot(roundint = F) 
 ```
 mtry should less than the predictors in the data set. 
 
@@ -119,12 +115,14 @@ param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min
 
 ## Question 7
 ```{r}
-tune_forest <- tune_grid(
-  pokemon_forest_wkflow,
-  resamples = pokemon.fold,
-  grid = param1_grid,
-  metrics = metric_set(roc_auc)
-)
+#tune_forest <- tune_grid(
+#  pokemon_forest_wkflow,
+#  resamples = pokemon.fold,
+#  grid = param1_grid,
+#  metrics = metric_set(roc_auc)
+#)
+#write_rds(tune_forest, file = 'tune_forest.rds')
+tune_forest <- read_rds(file = 'tune_forest.rds')
 autoplot(tune_forest)
 ```
 higher mtry will lead to higher performance. 
@@ -146,6 +144,7 @@ extract_fit_engine(pokemon_forest_best_fit) %>%
 vip()
 ```
 sp_atk is the most useful variable. 
+
 ## Question 10
 ```{r}
 pokemon_boost_model <- boost_tree(trees = tune()) %>% 
@@ -155,12 +154,14 @@ pokemon_boost_wkflow <- workflow() %>%
   add_model(pokemon_boost_model) %>% 
   add_recipe(pokemon.recipe)
 param2_grid <- grid_regular(trees(range(c(10,2000))), levels = 10)
-tune_boost <- tune_grid(
-  pokemon_boost_wkflow,
-  resamples = pokemon.fold,
-  grid = param2_grid,
-  metrics = metric_set(roc_auc)
-)
+#tune_boost <- tune_grid(
+#  pokemon_boost_wkflow,
+#  resamples = pokemon.fold,
+#  grid = param2_grid,
+#  metrics = metric_set(roc_auc)
+#)
+#write_rds(tune_boost, file = 'tune_boost.rds')
+tune_boost <- read_rds('tune_boost.rds')
 autoplot(tune_boost)
 ```
 ```{r}
@@ -187,6 +188,7 @@ random forest model performs best and pruned tree model performs worest.
 ## Pstat231 Only
 ## Question 12
 ```{r}
+set.seed(3456)
 abalone <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/HWs/homework-6/data/abalone.csv')
 age <- abalone[9]+1.5 # extract the rings column since age = rings+1.5
 abalone2 <- cbind(abalone,age) # add a new column into the dataframe
@@ -216,12 +218,14 @@ abalone_wkflow <- workflow() %>%
 forest_tune <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min_n(range = c(2,8)), levels = 10)
 ```
 ```{r}
-abalone_tune_forest <- tune_grid(
-  abalone_wkflow,
-  resamples = abalone_fold,
-  grid = forest_tune,
-  metrics = metric_set(rmse)
-)
+#abalone_tune_forest <- tune_grid(
+#  abalone_wkflow,
+#  resamples = abalone_fold,
+#  grid = forest_tune,
+#  metrics = metric_set(rmse)
+#)
+#write_rds(abalone_tune_forest, file = 'abalone_tune_forest.rds')
+abalone_tune_forest <- read_rds('abalone_tune_forest.rds')
 autoplot(abalone_tune_forest)
 ```
 ```{r}

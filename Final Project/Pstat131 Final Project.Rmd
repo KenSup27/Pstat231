@@ -22,7 +22,9 @@ This project aims to find the relationship between the potability if water is sa
 9. Turbidity
 
 ## R packages loading
-```{r include=FALSE}
+```{r message=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+library(compiler)
 library(xgboost)
 library(vip)
 library(ranger)
@@ -45,11 +47,111 @@ tidymodels_prefer()
 ```
 
 ## Data Cleaning
-```{r}
+```{r data reading and mutating}
 waterdata <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/Final Project/water_potability.csv')
 waterdata <- clean_names(waterdata)
-dim(waterdata)
+waterdata <- mutate(waterdata, potability = 
+            factor(potability, levels = c(1,0))) # make sure that 1 represents success. 
 ```
+
+There are total 3276 elements with 10 variables including outcome potability and other 9 predictors. 
+
+## EDA
+
+```{r graph of outcome}
+ggplot(waterdata, aes(potability))+
+  geom_bar()
+```
+
+According to the barplot, the outcome of potability only has two types which are 1 represented the water is potable, and 0 represented the water is not potable. 
+
+
+```{r correlation}
+cor_water <- waterdata %>% 
+  select(-potability) %>% 
+  cor(use = 'complete.obs', method = 'pearson')
+corrplot(cor_water, method = 'number', type = 'lower') # draw the correlation plot
+```
+From the correlation graph, we could see that every variables are pretty independent with each other, even though: \
+- sulfate and solids have slight negative correlation; \
+- sulfate and hardness have slight negative correlation; \
+- hardness and ph have slight positive correlation. 
+
+```{r data splitting}
+set.seed(3276)
+water.split <- initial_split(waterdata, prop = 0.8, strata = potability)
+water_training <- training(water.split)
+water_testing <- testing(water.split)
+water_fold <- vfold_cv(water_training, v = 10, strata = potability) # cross validation
+```
+
+```{r}
+water_recipe <- recipe(potability~., data = water_training)%>% # create a recipe that used later. 
+  step_impute_knn(all_predictors()) %>% # using the knn to impute the missing data
+  step_scale(all_predictors()) %>% 
+  step_center(all_predictors())
+water_recipe %>% 
+  prep() %>% 
+  juice()
+```
+
+## Data Modeling
+
+### Logistic regression model
+```{r}
+water_log_reg <- logistic_reg() %>% 
+  set_engine('glm') %>% 
+  set_mode('classification') # does it have to be regression or classification? 
+water_log_wf <- workflow() %>% 
+  add_model(water_log_reg) %>% 
+  add_recipe(water_recipe)
+water_log_fit <- fit(water_log_wf, water_training) # Can folded data set fit into logistic regression ?
+```
+
+
+
+### Random Forest Model
+```{r}
+water_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>% 
+  set_engine('ranger', importance = "impurity") %>% 
+  set_mode('classification')
+water_forest_wkflow <- workflow() %>% 
+  add_model(water_forest_model) %>% 
+  add_recipe(water_recipe)
+param1_grid <- grid_regular(mtry(range = c(1,8)), trees(range = c(200,400)), min_n(range = c(2,8)), levels = 8)
+```
+```{r}
+water_tune_forest <- tune_grid(
+  water_forest_wkflow,
+  resamples = water_fold,
+  grid = param1_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(water_tune_forest)
+```
+
+
+
+
+
+### Boosted tree model
+```{r}
+water_boost_model <- boost_tree(trees = tune()) %>% 
+  set_engine("xgboost") %>%
+  set_mode("classification")
+water_boost_wkflow <- workflow() %>% 
+  add_model(water_boost_model) %>% 
+  add_recipe(water_recipe)
+param2_grid <- grid_regular(trees(range(c(10,2000))), levels = 10)
+tune_boost <- tune_grid(
+  water_boost_wkflow,
+  resamples = water_fold,
+  grid = param2_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(tune_boost)
+```
+
 
 
 
