@@ -181,8 +181,12 @@ bind_rows(pruned_tree, random_forest, boosted_tree) %>%
   mutate(model = c('pruned tree model', 'random forest model', 'boost tree model'), .before = .metric)
 # Boost Tree model is the best one. 
 #pokemon_boost_tree_testing <- fit(pokemon_boost_best, data = pokemon.testing) %>% 
-augment(pokemon_forest_best_fit, pokemon.testing, type = 'prob') %>% 
-  roc_auc(truth = type_1, estimate = .pred_Bug:.pred_Water)
+confmax <- augment(pokemon_forest_best_fit, pokemon.testing, type = 'prob') 
+roc_auc(confmax, truth = type_1, estimate = .pred_Bug:.pred_Water)
+conf_mat(confmax, truth = type_1, estimate = .pred_class) %>% 
+  autoplot('heatmap')
+roc_curve(confmax, truth = type_1, estimate = .pred_Bug:.pred_Water) %>%
+  autoplot()
 ```
 random forest model performs best and pruned tree model performs worest. 
 ## Pstat231 Only
