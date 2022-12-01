@@ -1,0 +1,250 @@
+---
+title: "Water Potability"
+subtitle: "Pstat231 Final Project"
+author: "Wentao Yu"
+date: "2022-12-01"
+output:
+    html_document:
+      toc: true
+      toc_float: true
+      code_folding: show
+---
+
+## Introduction
+
+![](drinkingwater.jpg)
+
+Water is the most important source in human's life. Thus, the potability of water is a crucial topic that we need to pay attention to. This project aims to find the relationship between the potability of water for human with other 9 variables containing:\
+1. PH value\
+2. Hardness\
+3. Solids(Total dissolved solids - TDS)\
+4. Chloramines\
+5. Sulfate\
+6. Conductivity\
+7. Organic_carbon\
+8. Trihalomethanes\
+9. Turbidity
+
+```{r message=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+library(kknn)
+library(class)
+library(compiler)
+library(xgboost)
+library(vip)
+library(ranger)
+library(rpart.plot)
+library(corrplot)
+library(tidymodels)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(corrr)
+library(discrim)
+library(poissonreg)
+library(klaR)
+library(pROC)
+library(janitor)
+library(glmnet)
+library(ISLR)
+library(ISLR2)
+tidymodels_prefer()
+```
+
+## Data Cleaning
+
+```{r data reading and mutating}
+waterdata <- read.csv('/Users/wentaoyu/Documents/UCSB File/Stats/Pstat131/Pstat131/Final Project/water_potability.csv')
+waterdata <- clean_names(waterdata)
+waterdata <- na.omit(waterdata)
+waterdata <- mutate(waterdata, potability = 
+            factor(potability, levels = c(1,0))) # make sure that 1 represents success. 
+```
+
+There are total 2011 observations with 10 variables including outcome potability and other 9 predictors.
+
+## EDA
+
+### Histogram of outcomes
+
+```{r graph of outcome}
+ggplot(waterdata, aes(potability))+
+  geom_bar()
+```
+
+According to the barplot, the outcome of potability only has two types which are 1 represented the water is potable, and 0 represented the water is not potable. The distribution of outcome is binomial.
+
+### Correlation of predictors
+
+```{r correlation}
+cor_water <- waterdata %>% 
+  select(-potability) %>% 
+  cor(use = 'complete.obs', method = 'pearson')
+corrplot(cor_water, method = 'number', type = 'lower') # draw the correlation plot
+```
+
+From the correlation graph, we could see that every variables are pretty independent with each other, even though:\
+- sulfate and solids have slight negative correlation;\
+- sulfate and hardness have slight negative correlation;\
+- hardness and ph have slight positive correlation.
+
+### Predictors Distribution
+
+```{r}
+df <- gather(waterdata, key = 'variable', value = 'value', -potability)
+ggplot(df, aes(x = value, group = potability, color = potability))+
+  geom_density()+
+  facet_wrap(~variable, scales = 'free')+
+  theme_bw()
+```
+
+## Data Splitting
+
+```{r data splitting}
+set.seed(5454)
+water.split <- initial_split(waterdata, prop = 0.8, strata = potability)
+water_training <- training(water.split)
+water_testing <- testing(water.split)
+water_fold <- vfold_cv(water_training, v = 5, strata = potability) # cross validation
+```
+
+```{r}
+water_recipe <- recipe(potability~., data = water_training)%>% # create a recipe that used later.
+  step_scale(all_predictors()) %>% 
+  step_center(all_predictors())
+water_recipe %>% 
+  prep() %>% 
+  juice()
+```
+
+## Data Modeling
+
+### Logistic regression model
+
+```{r}
+water_log_reg <- logistic_reg() %>% 
+  set_engine('glm') %>% 
+  set_mode('classification')  
+water_log_wf <- workflow() %>% 
+  add_model(water_log_reg) %>% 
+  add_recipe(water_recipe)
+water_log_fit <- fit(water_log_wf, water_training)
+water_log <- augment(water_log_fit, water_training, type = 'prob') %>% 
+  roc_auc(truth = potability, estimate = .pred_1) 
+water_log
+```
+
+### Random Forest Model
+
+```{r}
+water_forest_model <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>% 
+  set_engine('ranger', importance = "impurity") %>% 
+  set_mode('classification')
+water_forest_wkflow <- workflow() %>% 
+  add_model(water_forest_model) %>% 
+  add_recipe(water_recipe)
+param1_grid <- grid_regular(mtry(range = c(1,9)), trees(range = c(200,400)), min_n(range = c(2,9)), levels = 5)
+```
+
+```{r}
+water_tune_forest <- tune_grid(
+  water_forest_wkflow,
+  resamples = water_fold,
+  grid = param1_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(water_tune_forest)
+```
+
+```{r}
+matx_list1 <- collect_metrics(water_tune_forest)
+water_forest_best <- arrange(matx_list1, desc(mean))[1,]
+water_forest_best
+```
+
+### Boosted tree model
+
+```{r}
+water_boost_model <- boost_tree(trees = tune()) %>% 
+  set_engine("xgboost") %>%
+  set_mode("classification")
+water_boost_wkflow <- workflow() %>% 
+  add_model(water_boost_model) %>% 
+  add_recipe(water_recipe)
+param2_grid <- grid_regular(trees(range(c(10,2000))), levels = 10)
+water_tune_boost <- tune_grid(
+  water_boost_wkflow,
+  resamples = water_fold,
+  grid = param2_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(water_tune_boost)
+```
+
+```{r}
+matx_list2 <- collect_metrics(water_tune_boost)
+water_boosted_best <- arrange(matx_list2, desc(mean))[1,]
+water_boosted_best
+```
+
+### K-Nearest Neighbor model
+
+```{r}
+water_knn_model <- nearest_neighbor(neighbors = tune()) %>% 
+  set_engine('kknn') %>% 
+  set_mode('classification')
+water_knn_wkflow <- workflow() %>% 
+  add_model(water_knn_model) %>% 
+  add_recipe(water_recipe)
+param3_grid <- grid_regular(neighbors(range = c(20,60)), levels = 10)
+knn_tune <- tune_grid(
+  water_knn_wkflow,
+  resamples = water_fold,
+  grid = param3_grid,
+  metrics = metric_set(roc_auc)
+)
+autoplot(knn_tune)
+```
+
+```{r}
+matx_list3 <- collect_metrics(knn_tune)
+water_knn_best <- arrange(matx_list3, desc(mean))[1,]
+water_knn_best
+```
+
+| Models                    | Metric  | Performance |
+|---------------------------|---------|-------------|
+| Logistic Regression Model | roc_auc | 0.532753    |
+| Random Forest Model       | roc_auc | 0.7056666   |
+| Boosted Tree Model        | roc_auc | 0.6690808   |
+| K-Nearest Neighbor        | roc_auc | 0.6865449   |
+
+From the model performance table above, the best model selected from random forest model has the highest roc_auc value. Thus, I will fit the test set into it in order to find the how it performs.
+
+```{r}
+best_model <- select_best(water_tune_forest)
+best_wkflow <- finalize_workflow(water_forest_wkflow, best_model)
+best_fit <- fit(best_wkflow, water_training)
+finalaug <- augment(best_fit, water_testing, type = 'prob')
+roc_auc(finalaug, truth = potability, estimate = .pred_1)
+conf_mat(finalaug, truth = potability, estimate = .pred_class) %>% 
+  autoplot('heatmap')
+roc_curve(finalaug, truth = potability, estimate = .pred_1) %>%
+  autoplot()
+```
+
+```{r}
+extract_fit_engine(best_fit) %>% 
+vip()
+```
+
+
+## Conclusion
+
+The roc_auc curve fitted for the testing set is 0.7052914. From the confusion matrix, the model is good to predict the potability of water. In addition, the roc curve shows that it is a good model. And from vip graph, the sulfate and ph are the two most important variables which will influence the potability of water. \
+Last but not least, potability of water is an important topic that everyone should pay attention to it. We could see that there is a big part of water that human beings cannot drink. Thus, protecting drikable water is everyone's responsibility. 
+
+## Reference
+
+1.  Kadiwal, A. (2021, April 25). Water quality. Kaggle. Retrieved November 30, 2022, from <https://www.kaggle.com/datasets/adityakadiwal/water-potability>
+2.  Free images : Blue, bubbles, clear, close up, cold drink ... - pxhere. (n.d.). Retrieved December 1, 2022, from <https://pxhere.com/en/photo/1434971>
